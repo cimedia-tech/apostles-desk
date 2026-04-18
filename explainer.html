@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apostle's Desk — Explainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0c24;
+  --gold:#c9a227;
+  --gold-light:#e8c84a;
+  --red:#e05252;
+  --blue:#4d9de0;
+  --purple:#6c4fc9;
+  --text:#f0eeff;
+  --muted:#9490b8;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Syne',sans-serif;color:var(--text)}
+
+/* ── PROGRESS BAR ── */
+#progress-track{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,0.1);z-index:1000}
+#progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));width:0%;transition:width 0.4s ease}
+
+/* ── CONTROLS ── */
+#controls{position:fixed;bottom:28px;right:28px;z-index:1000;display:flex;gap:12px;align-items:center}
+.ctrl-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--text);border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;backdrop-filter:blur(10px)}
+.ctrl-btn:hover{background:rgba(255,255,255,0.15)}
+#scene-counter{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:1px}
+
+/* ── SCENE WRAPPER ── */
+#stage{position:fixed;inset:0;overflow:hidden}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.7s ease}
+.scene.active{opacity:1;pointer-events:all}
+.scene.exit{opacity:0}
+
+/* ── AMBIENT BG ── */
+.scene-bg{position:absolute;inset:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.25}
+.orb-gold{width:600px;height:600px;background:radial-gradient(circle,#c9a22766,transparent 70%);top:-200px;right:-100px;animation:drift 8s ease-in-out infinite alternate}
+.orb-purple{width:500px;height:500px;background:radial-gradient(circle,#6c4fc966,transparent 70%);bottom:-150px;left:-100px;animation:drift 10s ease-in-out infinite alternate-reverse}
+.orb-blue{width:400px;height:400px;background:radial-gradient(circle,#4d9de066,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:drift 12s ease-in-out infinite alternate}
+@keyframes drift{0%{transform:translate(0,0)}100%{transform:translate(40px,30px)}}
+.grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px}
+
+/* ── PHONE MOCKUP ── */
+.phone{width:260px;height:520px;background:#1a1640;border-radius:44px;border:10px solid #2a2450;box-shadow:0 40px 120px -20px rgba(0,0,0,0.8),inset 0 1px 0 rgba(255,255,255,0.1),0 0 0 1px rgba(255,255,255,0.05);position:relative;overflow:hidden;flex-shrink:0}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:100px;height:28px;background:#2a2450;border-radius:0 0 18px 18px;z-index:10}
+.phone-screen{position:absolute;inset:0;border-radius:34px;overflow:hidden}
+.phone-chrome{width:100%;height:100%;overflow:hidden;font-size:8px;font-family:'Syne',sans-serif}
+
+/* ── PHONE UI COMPONENTS ── */
+.ph-header{background:linear-gradient(135deg,#1a1035,#2d1b6b);padding:32px 12px 8px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.ph-title{font-size:13px;font-weight:700;color:#f0eeff;letter-spacing:-0.3px}
+.ph-title span{color:#c9a227}
+.ph-subtitle{font-size:7px;color:#9490b8;margin-top:1px}
+.ph-filters{display:flex;gap:4px;margin-top:8px;padding-bottom:8px}
+.ph-pill{padding:3px 8px;border-radius:20px;font-size:6px;font-weight:700;letter-spacing:0.3px}
+.ph-pill.active{background:#c9a227;color:#000}
+.ph-pill.v{background:rgba(201,162,39,0.15);color:#c9a227;border:1px solid rgba(201,162,39,0.3)}
+.ph-pill.t{background:rgba(224,82,82,0.15);color:#e05252;border:1px solid rgba(224,82,82,0.3)}
+.ph-pill.p{background:rgba(77,157,224,0.15);color:#4d9de0;border:1px solid rgba(77,157,224,0.3)}
+.ph-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px 12px}
+.ph-stat{background:#1a1640;border-radius:8px;padding:6px 4px;text-align:center;border:1px solid rgba(255,255,255,0.06)}
+.ph-stat .n{font-size:14px;font-weight:700}
+.ph-stat .l{font-size:5.5px;color:#9490b8;margin-top:1px}
+.ph-stat.v .n{color:#c9a227}
+.ph-stat.t .n{color:#e05252}
+.ph-stat.p .n{color:#4d9de0}
+.ph-cards{padding:0 8px;display:flex;flex-direction:column;gap:6px}
+.ph-card{background:#1a1640;border-radius:8px;border:1px solid rgba(255,255,255,0.07);overflow:hidden}
+.ph-card-bar{height:3px}
+.ph-card-bar.v{background:#c9a227}
+.ph-card-bar.t{background:#e05252}
+.ph-card-bar.p{background:#4d9de0}
+.ph-card-body{padding:7px}
+.ph-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:4px}
+.ph-card-title{font-size:7px;font-weight:600;line-height:1.3;flex:1;color:#f0eeff}
+.ph-badge{font-size:5px;font-weight:700;padding:2px 5px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.ph-badge.v{background:rgba(201,162,39,0.15);color:#c9a227}
+.ph-badge.t{background:rgba(224,82,82,0.15);color:#e05252}
+.ph-badge.p{background:rgba(77,157,224,0.15);color:#4d9de0}
+.ph-meta{font-size:5.5px;color:#9490b8;margin-top:3px}
+.ph-progress{height:2px;background:#231e52;border-radius:2px;margin-top:5px;overflow:hidden}
+.ph-progress-fill{height:100%;background:#4d9de0;border-radius:2px;width:40%}
+.ph-ul{font-size:5px;color:#9490b8;margin-top:4px}
+
+/* ── ADD SHEET ── */
+.ph-sheet{position:absolute;bottom:0;left:0;right:0;background:#1a1640;border-radius:16px 16px 0 0;padding:12px;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.32,0.72,0,1)}
+.ph-sheet.open{transform:translateY(0)}
+.ph-sheet-handle{width:28px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin:0 auto 10px}
+.ph-sheet-title{font-size:10px;font-weight:700;margin-bottom:8px}
+.ph-type-row{display:flex;gap:4px;margin-bottom:8px}
+.ph-type-btn{flex:1;padding:6px 4px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.08);text-align:center;font-size:5.5px;font-weight:700;color:#9490b8}
+.ph-type-btn.sel.v{border-color:#c9a227;background:rgba(201,162,39,0.12);color:#c9a227}
+.ph-type-btn.sel.t{border-color:#e05252;background:rgba(224,82,82,0.12);color:#e05252}
+.ph-type-btn.sel.p{border-color:#4d9de0;background:rgba(77,157,224,0.12);color:#4d9de0}
+.ph-input-row{display:flex;gap:4px;align-items:flex-start;margin-bottom:6px}
+.ph-textarea{flex:1;background:#0f0c24;border:1px solid rgba(255,255,255,0.1);border-radius:6px;height:32px;color:#f0eeff;font-size:6px;padding:4px;font-family:'Syne',sans-serif;line-height:1.4}
+.ph-mic{width:28px;height:28px;background:#231e52;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.ph-save{width:100%;background:#c9a227;border-radius:8px;padding:8px;font-size:8px;font-weight:700;color:#000;text-align:center;margin-top:6px}
+
+/* ── SEARCH DEMO ── */
+.ph-search-bar{padding:0 8px 8px;display:none}
+.ph-search-bar.vis{display:block}
+.ph-search-input{width:100%;background:#231e52;border:1px solid rgba(255,255,255,0.08);border-radius:6px;height:20px;padding:0 8px;font-size:6.5px;color:#f0eeff;font-family:'Syne',sans-serif}
+
+/* ── TYPING CURSOR ── */
+.cursor{display:inline-block;width:6px;height:10px;background:#c9a227;margin-left:2px;animation:blink 0.8s infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+/* ── SCENE TEXT STYLES ── */
+.scene-eyebrow{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:0;transform:translateY(16px);transition:all 0.6s ease}
+.scene-headline{font-family:'Playfair Display',serif;font-size:clamp(36px,6vw,72px);font-weight:900;line-height:1.05;text-align:center;opacity:0;transform:translateY(24px);transition:all 0.7s ease 0.15s;max-width:800px}
+.scene-headline em{font-style:italic;color:var(--gold)}
+.scene-sub{font-size:clamp(14px,2vw,20px);color:var(--muted);text-align:center;max-width:560px;line-height:1.6;opacity:0;transform:translateY(16px);transition:all 0.6s ease 0.3s}
+.scene-content{opacity:0;transform:translateY(20px);transition:all 0.6s ease 0.2s}
+
+.scene.active .scene-eyebrow,
+.scene.active .scene-headline,
+.scene.active .scene-sub,
+.scene.active .scene-content{opacity:1;transform:translateY(0)}
+
+/* ── NARRATION BAR ── */
+#narration{position:fixed;bottom:0;left:0;right:0;padding:20px 40px 32px;background:linear-gradient(transparent,rgba(15,12,36,0.95) 40%);text-align:center;z-index:100}
+#narration p{font-size:15px;color:rgba(240,238,255,0.75);line-height:1.6;max-width:640px;margin:0 auto;transition:opacity 0.4s;font-style:italic}
+
+/* ── TYPE CARDS (scene 3) ── */
+.type-cards{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.type-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:28px 32px;text-align:center;min-width:180px;position:relative;overflow:hidden}
+.type-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.type-card.vision::before{background:var(--gold)}
+.type-card.task::before{background:var(--red)}
+.type-card.project::before{background:var(--blue)}
+.type-card .tc-icon{font-size:36px;margin-bottom:12px}
+.type-card .tc-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:6px}
+.type-card.vision .tc-name{color:var(--gold)}
+.type-card.task .tc-name{color:var(--red)}
+.type-card.project .tc-name{color:var(--blue)}
+.type-card .tc-desc{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* ── URGENCY TIMELINE ── */
+.timeline{display:flex;flex-direction:column;gap:12px;width:100%;max-width:480px}
+.tl-item{display:flex;align-items:center;gap:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 20px;opacity:0;transform:translateX(-20px);transition:all 0.4s ease}
+.tl-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.tl-label{font-weight:700;font-size:15px}
+.tl-desc{font-size:13px;color:var(--muted)}
+
+/* ── FEATURE PILLS ── */
+.features{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:600px}
+.feat{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:40px;padding:10px 18px;font-size:14px;opacity:0;transform:scale(0.9);transition:all 0.4s ease}
+
+/* ── CTA SCENE ── */
+.cta-btn{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:#000;font-family:'Syne',sans-serif;font-weight:800;font-size:18px;padding:18px 40px;border-radius:50px;text-decoration:none;margin-top:32px;opacity:0;transform:translateY(20px);transition:all 0.6s ease 0.5s;letter-spacing:-0.3px}
+.cta-btn:hover{background:var(--gold-light);transform:translateY(-2px) scale(1.02)}
+.scene.active .cta-btn{opacity:1;transform:translateY(0)}
+
+/* ── GOLD LINE ── */
+.gold-line{width:60px;height:2px;background:var(--gold);margin:20px auto}
+
+/* ── SPLIT LAYOUT ── */
+.split{display:flex;align-items:center;gap:60px;width:100%;max-width:900px;padding:0 40px}
+.split-text{flex:1}
+.split-text .scene-headline{text-align:left;font-size:clamp(28px,4vw,52px)}
+.split-text .scene-sub{text-align:left}
+.split-phone{flex-shrink:0}
+
+/* ── PULSE RING ── */
+.pulse-ring{position:absolute;width:320px;height:620px;border-radius:48px;border:1px solid rgba(201,162,39,0.2);animation:ring-pulse 3s ease-in-out infinite}
+.pulse-ring:nth-child(2){width:370px;height:680px;animation-delay:1s;opacity:0.5}
+@keyframes ring-pulse{0%,100%{transform:scale(1);opacity:0.3}50%{transform:scale(1.02);opacity:0.6}}
+
+/* MIC WAVES */
+.mic-waves{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;gap:3px;align-items:center}
+.wave-bar{width:3px;border-radius:3px;background:var(--red);animation:wave 0.8s ease-in-out infinite}
+.wave-bar:nth-child(1){height:8px;animation-delay:0s}
+.wave-bar:nth-child(2){height:16px;animation-delay:0.1s}
+.wave-bar:nth-child(3){height:24px;animation-delay:0.2s}
+.wave-bar:nth-child(4){height:16px;animation-delay:0.3s}
+.wave-bar:nth-child(5){height:8px;animation-delay:0.4s}
+@keyframes wave{0%,100%{transform:scaleY(0.5);opacity:0.5}50%{transform:scaleY(1);opacity:1}}
+
+/* SHARE SHEET */
+.share-sheet{position:absolute;bottom:0;left:0;right:0;background:#1a1640;border-radius:16px 16px 0 0;padding:12px;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.32,0.72,0,1)}
+.share-sheet.open{transform:translateY(0)}
+.share-option{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:7px;color:#f0eeff}
+.share-icon{width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+
+/* FADE IN stagger for tl-items */
+.tl-item.show{opacity:1;transform:translateX(0)}
+.feat.show{opacity:1;transform:scale(1)}
+</style>
+</head>
+<body>
+
+<div id="progress-track"><div id="progress-fill"></div></div>
+
+<div id="stage">
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 0 · OPENING TITLE
+  ══════════════════════════════════════════════ -->
+  <div class="scene active" id="s0">
+    <div class="scene-bg">
+      <div class="orb orb-gold"></div>
+      <div class="orb orb-purple"></div>
+      <div class="grid-lines"></div>
+    </div>
+    <div class="scene-eyebrow">Christ Cathedral of Deliverance · Media Ministry</div>
+    <div class="gold-line" style="opacity:0;transition:opacity 0.5s ease 0.1s" id="s0-line"></div>
+    <div class="scene-headline">Apostle's <em>Desk</em></div>
+    <div class="scene-sub">Every instruction from the pulpit — captured, categorized, and acted on.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 1 · THE PROBLEM
+  ══════════════════════════════════════════════ -->
+  <div class="scene" id="s1">
+    <div class="scene-bg">
+      <div class="orb orb-purple" style="opacity:0.3"></div>
+      <div class="grid-lines"></div>
+    </div>
+    <div class="scene-eyebrow">The Challenge</div>
+    <div class="scene-headline">Instructions fly.<br>Priorities blur.<br><em>Things slip.</em></div>
+    <div class="scene-sub">When your pastor speaks vision, task, and project in one breath — you need a system that keeps up without slowing you down.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 2 · THE SOLUTION (PHONE REVEAL)
+  ══════════════════════════════════════════════ -->
+  <div class="scene" id="s2">
+    <div class="scene-bg">
+      <div class="orb orb-gold" style="right:auto;left:-100px"></div>
+      <div class="orb orb-blue" style="opacity:0.2"></div>
+      <div class="grid-lines"></div>
+    </div>
+    <div class="scene-content split">
+      <div class="split-text">
+        <div class="scene-eyebrow">The Solution</div>
+        <div class="scene-headline">One tap.<br>Every<br><em>instruction</em><br>accounted for.</div>
+        <div class="scene-sub" style="margin-top:16px">A mobile-first PWA built for your exact workflow. Log it in seconds. Track it for weeks.</div>
+      </div>
+      <div class="split-phone" style="position:relative">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-chrome">
+              <div class="ph-header">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div><div class="ph-title">Apostle's <span>Desk</span></div><div class="ph-subtitle">Christ Cathedral · Media Ministry</div></div>
+                  <div style="background:#c9a227;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#000;font-size:14px;font-weight:300">+</div>
+                </div>
+                <div class="ph-filters">
+                  <span class="ph-pill active">All</span>
+                  <span class="ph-pill v">Vision</span>
+                  <span class="ph-pill t">Tasks</span>
+                  <span class="ph-pill p">Projects</span>
+                </div>
+              </div>
+              <div class="ph-stats">
+                <div class="ph-stat v"><div class="n">3</div><div class="l">Vision</div></div>
+                <div class="ph-stat t"><div class="n">2</div><div class="l">Tasks</div></div>
+                <div class="ph-stat p"><div class="n">4</div><div class="l">Projects</div></div>
+              </div>
+              <div class="ph-cards">
+                <div class="ph-card"><div class="ph-card-bar t"></div><div class="ph-card-body"><div class="ph-card-top"><div class="ph-card-title">Update Sunday bulletin graphics</div><span class="ph-badge t">Task</span></div><div class="ph-meta">⚡ Immediate · Due tomorrow</div></div></div>
+                <div class="ph-card"><div class="ph-card-bar v"></div><div class="ph-card-body"><div class="ph-card-top"><div class="ph-card-title">Rebrand all media to reflect new ministry season</div><span class="ph-badge v">Vision</span></div><div class="ph-meta">🌅 Long-term</div></div></div>
+                <div class="ph-card"><div class="ph-card-bar p"></div><div class="ph-card-body"><div class="ph-card-top"><div class="ph-card-title">Launch church YouTube channel</div><span class="ph-badge p">Project</span></div><div class="ph-meta">📋 This Month</div><div class="ph-progress"><div class="ph-progress-fill" style="width:60%"></div></div><div class="ph-ul">3/5 steps done</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 3 · THREE TYPES
+  ══════════════════════════════════════════════ -->
+  <div class="scene" id="s3">
+    <div class="scene-bg">
+      <div class="orb orb-gold" style="opacity:0.2;top:auto;bottom:-100px;right:-50px"></div>
+      <div class="orb orb-purple" style="opacity:0.15"></div>
+      <div class="grid-lines"></div>
+    </div>
+    <div class="scene-eyebrow">Three Types of Instructions</div>
+    <div class="scene-headline">Classify in<br><em>one tap.</em></div>
+    <div class="scene-content type-cards" style="margin-top:32px">
+      <div class="type-card vision">
+        <div class="tc-icon">👁</div>
+        <div class="tc-name">Vision</div>
+        <div class="tc-desc">Long-term direction &<br>prophetic instruction</div>
+      </div>
+      <div class="type-card task">
+        <div class="tc-icon">⚡</div>
+        <div class="tc-name">Task</div>
+        <div class="tc-desc">Needs to be done<br>in 48 hours or less</div>
+      </div>
+      <div class="type-card project">
+        <div class="tc-icon">📋</div>
+        <div class="tc-name">Project</div>
+        <div class="tc-desc">Multi-step work<br>with a deadline</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 4 · VOICE INPUT
+  ══════════════════════════════════════════════ -->
+  <div class="scene" id="s4">
+    <div class="scene-bg">
+      <div class="orb orb-blue" style="opacity:0.2"></div>
+      <div class="grid-lines"></div>
+    </div>
+    <div class="scene-content split">
+      <div class="split-text">
+        <div class="scene-eyebrow">Voice Input</div>
+        <div class="scene-headline">Speak it in.<br>Don't<br><em>type it</em><br>out.</div>
+        <div class="scene-sub" style="margin-top:16px">Tap the mic, speak the instruction exactly as Apostle gave it. Captured instantly — no fumbling, no forgetting.</div>
+      </div>
+      <div class="split-phone" style="position:relative">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-chrome">
+              <div class="ph-header">
+                <div class="ph-title">Apostle's <span>Desk</span></div>
+                <div class="ph-subtitle">Christ Cathedral · Media Ministry</div>
+              </div>
+              <div id="voiceSheet" class="ph-sheet open" style="top:0;bottom:auto;border-radius:0;transform:none;height:100%">
+                <div class="ph-sheet-title">New Instruction</div>
+                <div class="ph-type-row">
+                  <div class="ph-type-btn sel v">👁 Vision</div>
+                  <div class="ph-type-btn t">⚡ Task</div>
+                  <div class="ph-type-btn p">📋 Project</div>
+                </div>
+                <div style="font-size:6px;font-weight:600;color:#9490b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Instruction</div>
+                <div class="ph-input-row">
+                  <div class="ph-textarea" id="voiceText">Build out the new media<span class="cursor"></span></div>
+                  <div class="ph-mic" id="micDemo" style="background:rgba(224,82,82,0.15);border:1.5px solid #e05252;position:relative">
+                    🎤
+                    <div class="mic-waves" style="position:absolute;top:-28px;left:50%;transform:translateX(-50%)">
+                      <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                    </div>
+                  </div>
+                </div>
+                <div style="font-size:6px;font-weight:600;color:#9490b8;text-transform:uppercase;letter-spacing:0.5px;margin:8px 0 5px">Urgency</div>
+                <div class="urgency-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+                  <div style="padding:5px;border-radius:6px;border:1.5px solid #c9a227;background:rgba(201,162,39,0.12);color:#c9a227;font-size:5.5px;text-align:center">⚡ Immediate (48hr)</div>
+                  <div style="padding:5px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);color:#9490b8;font-size:5.5px;text-align:center">📅 This Week</div>
+                </div>
+                <div class="ph-save" style="margin-top:10px">Save Instruction</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 5 · URGENCY & TIMELINE
+  ══════════════════════════════════════════════ -->
+  <div class="scene" id="s5">
+    <div class="scene-bg">
+      <div class="orb orb-gold" style="opacity:0.15;top:auto;bottom:-100px"></div>
+      <div class="grid-lines"></div>
+    </div>
+    <div class="scene-eyebrow">Four Urgency Levels</div>
+    <div class="scene-headline">Every instruction<br>has its <em>moment.</em></div>
+    <div class="scene-content timeline" id="tl" style="margin-top:28px">
+      <div class="tl-item"><div class="tl-dot" style="background:#e05252;box-shadow:0 0 8px #e05252"></div><div><div class="tl-label">⚡ Immediate</div><div class="tl-desc">48 hours — urgent, pulsing indicator, top of the list</div></div></div>
+      <div class="tl-item"><div class="tl-dot" style="background:#c9a227;box-shadow:0 0 8px #c9a227"></div><div><div class="tl-label">📅 This Week</div><div class="tl-desc">Current week priority — stay focused, stay on track</div></div></div>
+      <div class="tl-item"><div class="tl-dot" style="background:#4d9de0;box-shadow:0 0 8px #4d9de0"></div><div><div class="tl-label">🗓 This Month</div><div class="tl-desc">Monthly scope — scheduled and planned ahead</div></div></div>
+      <div class="tl-item"><div class="tl-dot" style="background:#6c4fc9;box-shadow:0 0 8px #6c4fc9"></div><div><div class="tl-label">🌅 Long-term</div><div class="tl-desc">Vision & future — held without pressure, never forgotten</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 6 · SUB-TASKS
+  ══════════════════════════════════════════════ -->
+  <div class="scene" id="s6">
+    <div class="scene-bg">
+      <div class="orb orb-blue" style="opacity:0.2;top:auto;bottom:-50px"></div>
+      <div class="grid-lines"></div>
+    </div>
+    <div class="scene-content split">
+      <div class="split-text">
+        <div class="scene-eyebrow">Project Sub-tasks</div>
+        <div class="scene-headline">Break it<br>down.<br><em>Ship it</em><br>complete.</div>
+        <div class="scene-sub" style="margin-top:16px">Projects get step-by-step sub-tasks with a live progress bar — so you always know exactly where you stand.</div>
+      </div>
+      <div class="split-phone">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-chrome">
+              <div class="ph-header">
+                <div class="ph-title">Apostle's <span>Desk</span></div>
+              </div>
+              <div style="padding:8px">
+                <div style="background:#231e52;border-radius:10px;padding:10px;margin-bottom:8px">
+                  <div style="font-size:5.5px;font-weight:700;color:#4d9de0;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">PROJECT</div>
+                  <div style="font-size:8px;font-weight:700;color:#f0eeff;margin-bottom:6px">Launch church YouTube channel</div>
+                  <div style="height:3px;background:#1a1640;border-radius:2px;overflow:hidden;margin-bottom:3px">
+                    <div id="projBar" style="height:100%;background:#4d9de0;border-radius:2px;width:60%;transition:width 0.5s ease"></div>
+                  </div>
+                  <div style="font-size:5.5px;color:#9490b8" id="projCount">3 / 5 steps done</div>
+                </div>
+                <div id="subItems" style="display:flex;flex-direction:column;gap:5px">
+                  <div class="sub-row" style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)"><div style="width:10px;height:10px;border-radius:3px;background:#4d9de0;display:flex;align-items:center;justify-content:center;font-size:7px;color:#000;flex-shrink:0">✓</div><span style="font-size:6.5px;color:#9490b8;text-decoration:line-through">Create channel account</span></div>
+                  <div class="sub-row" style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)"><div style="width:10px;height:10px;border-radius:3px;background:#4d9de0;display:flex;align-items:center;justify-content:center;font-size:7px;color:#000;flex-shrink:0">✓</div><span style="font-size:6.5px;color:#9490b8;text-decoration:line-through">Design channel art</span></div>
+                  <div class="sub-row" style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)"><div style="width:10px;height:10px;border-radius:3px;background:#4d9de0;display:flex;align-items:center;justify-content:center;font-size:7px;color:#000;flex-shrink:0">✓</div><span style="font-size:6.5px;color:#9490b8;text-decoration:line-through">Upload intro video</span></div>
+                  <div class="sub-row" id="sub4" style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)"><div style="width:10px;height:10px;border-radius:3px;border:1.5px solid rgba(77,157,224,0.4);flex-shrink:0"></div><span style="font-size:6.5px;color:#f0eeff">Write channel description</span></div>
+                  <div class="sub-row" style="display:flex;align-items:center;gap:6px;padding:5px 0"><div style="width:10px;height:10px;border-radius:3px;border:1.5px solid rgba(77,157,224,0.4);flex-shrink:0"></div><span style="font-size:6.5px;color:#f0eeff">Schedule first live stream</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 7 · ALL FEATURES
+  ══════════════════════════════════════════════ -->
+  <div class="scene" id="s7">
+    <div class="scene-bg">
+      <div class="orb orb-gold" style="opacity:0.15"></div>
+      <div class="orb orb-purple" style="opacity:0.2;bottom:-100px;top:auto;left:auto;right:-100px"></div>
+      <div class="grid-lines"></div>
+    </div>
+    <div class="scene-eyebrow">Everything You Need</div>
+    <div class="scene-headline">Built for the<br><em>ministry pace.</em></div>
+    <div class="scene-content features" id="feats" style="margin-top:28px">
+      <div class="feat">🔍 Instant search</div>
+      <div class="feat">🎤 Voice capture</div>
+      <div class="feat">📊 Progress tracking</div>
+      <div class="feat">📤 Share & export</div>
+      <div class="feat">⚠️ Overdue alerts</div>
+      <div class="feat">✅ Mark complete</div>
+      <div class="feat">↩️ Reopen anytime</div>
+      <div class="feat">📱 Works offline</div>
+      <div class="feat">🏠 iPhone home screen</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 8 · CTA
+  ══════════════════════════════════════════════ -->
+  <div class="scene" id="s8">
+    <div class="scene-bg">
+      <div class="orb orb-gold" style="width:800px;height:800px;opacity:0.2;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+      <div class="orb orb-purple" style="opacity:0.2"></div>
+      <div class="grid-lines"></div>
+    </div>
+    <div class="scene-eyebrow">Christ Cathedral of Deliverance</div>
+    <div class="scene-headline">Ready to<br>get to <em>work?</em></div>
+    <div class="scene-sub">Open it in Safari. Add to your home screen. Start logging in under 30 seconds.</div>
+    <a href="https://apostles-desk.vercel.app" class="cta-btn" target="_blank">
+      Open Apostle's Desk →
+    </a>
+  </div>
+
+</div><!-- /stage -->
+
+<div id="narration"><p id="narText">Every word from the pulpit — captured, organized, and acted on.</p></div>
+
+<div id="controls">
+  <span id="scene-counter">01 / 09</span>
+  <button class="ctrl-btn" onclick="prevScene()" title="Previous">‹</button>
+  <button class="ctrl-btn" id="playBtn" onclick="togglePlay()" title="Pause">⏸</button>
+  <button class="ctrl-btn" onclick="nextScene()" title="Next">›</button>
+</div>
+
+<script>
+const SCENES = [
+  { dur: 4500, nar: "Every word from the pulpit — captured, organized, and acted on." },
+  { dur: 5000, nar: "When vision, tasks, and projects come in the same conversation — things get missed. Not anymore." },
+  { dur: 6000, nar: "Apostle's Desk is a mobile app built specifically for ministry media leaders. Your whole instruction load — always in your pocket." },
+  { dur: 5500, nar: "Three types of instructions. Vision for prophetic direction. Task for the next 48 hours. Project for multi-step work with a deadline." },
+  { dur: 5500, nar: "Tap the mic and speak. Apostle's Desk transcribes the instruction instantly — no typing, no delay." },
+  { dur: 6000, nar: "Set the urgency level and the app sorts everything automatically. Immediate tasks pulse in red. Vision stays gold at the bottom, never forgotten." },
+  { dur: 6000, nar: "Break any project into steps. Check them off one by one. A live progress bar shows you exactly how far along you are." },
+  { dur: 5000, nar: "Search, share, track overdue items, and reopen anything — all the tools your workflow actually needs." },
+  { dur: 0,    nar: "Available now. Free. No login required. Just open it in Safari and add it to your home screen." }
+];
+
+let current = 0;
+let timer = null;
+let playing = true;
+let elapsed = 0;
+let tickInterval = null;
+
+function goTo(idx) {
+  const scenes = document.querySelectorAll('.scene');
+  scenes[current].classList.remove('active');
+  current = Math.max(0, Math.min(idx, SCENES.length - 1));
+  scenes[current].classList.add('active');
+  document.getElementById('narText').style.opacity = 0;
+  setTimeout(() => {
+    document.getElementById('narText').textContent = SCENES[current].nar;
+    document.getElementById('narText').style.opacity = 1;
+  }, 300);
+  document.getElementById('scene-counter').textContent =
+    String(current + 1).padStart(2,'0') + ' / ' + String(SCENES.length).padStart(2,'0');
+  updateProgress();
+  onSceneEnter(current);
+  if (playing) scheduleNext();
+}
+
+function updateProgress() {
+  const pct = (current / (SCENES.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function scheduleNext() {
+  clearTimeout(timer);
+  clearInterval(tickInterval);
+  elapsed = 0;
+  const dur = SCENES[current].dur;
+  if (!dur) return;
+  tickInterval = setInterval(() => { elapsed += 100; }, 100);
+  timer = setTimeout(() => { if (current < SCENES.length - 1) nextScene(); }, dur);
+}
+
+function nextScene() { goTo(current + 1); }
+function prevScene() { goTo(current - 1); }
+function togglePlay() {
+  playing = !playing;
+  document.getElementById('playBtn').textContent = playing ? '⏸' : '▶';
+  if (playing) scheduleNext(); else { clearTimeout(timer); clearInterval(tickInterval); }
+}
+
+// Scene-specific animations
+function onSceneEnter(idx) {
+  if (idx === 0) {
+    setTimeout(() => { const l = document.getElementById('s0-line'); if(l)l.style.opacity='1'; }, 300);
+  }
+  if (idx === 5) {
+    const items = document.querySelectorAll('#tl .tl-item');
+    items.forEach((item, i) => {
+      item.classList.remove('show');
+      setTimeout(() => item.classList.add('show'), 300 + i * 180);
+    });
+  }
+  if (idx === 6) {
+    let pct = 60;
+    setTimeout(() => {
+      const bar = document.getElementById('projBar');
+      const cnt = document.getElementById('projCount');
+      const sub4 = document.getElementById('sub4');
+      if (!bar) return;
+      setTimeout(() => {
+        pct = 80;
+        bar.style.width = '80%';
+        cnt.textContent = '4 / 5 steps done';
+        if (sub4) {
+          sub4.querySelector('div').style.background = '#4d9de0';
+          sub4.querySelector('div').textContent = '✓';
+          sub4.querySelector('div').style.color = '#000';
+          sub4.querySelector('span').style.textDecoration = 'line-through';
+          sub4.querySelector('span').style.color = '#9490b8';
+        }
+      }, 2000);
+    }, 500);
+  }
+  if (idx === 7) {
+    const feats = document.querySelectorAll('#feats .feat');
+    feats.forEach((f, i) => {
+      f.classList.remove('show');
+      setTimeout(() => f.classList.add('show'), 200 + i * 100);
+    });
+  }
+}
+
+// Voice typing animation for scene 4
+function runVoiceAnim() {
+  const el = document.getElementById('voiceText');
+  if (!el) return;
+  const phrases = ['Build out the new media team', 'Plan the Easter broadcast', 'Redesign the welcome banner', 'Film Apostle\'s testimony video'];
+  let pi = 0;
+  function typePhrase(phrase) {
+    el.innerHTML = '<span class="cursor"></span>';
+    let ci = 0;
+    const interval = setInterval(() => {
+      if (ci >= phrase.length) {
+        clearInterval(interval);
+        setTimeout(() => {
+          pi = (pi + 1) % phrases.length;
+          typePhrase(phrases[pi]);
+        }, 2500);
+        return;
+      }
+      el.innerHTML = phrase.slice(0, ++ci) + '<span class="cursor"></span>';
+    }, 55);
+  }
+  typePhrase(phrases[0]);
+}
+setTimeout(runVoiceAnim, 1000);
+
+goTo(0);
+</script>
+</body>
+</html>
