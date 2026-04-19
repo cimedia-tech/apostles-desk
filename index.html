@@ -249,7 +249,7 @@ body::after {
   font-weight: 700;
   line-height: 1;
 }
-.stat-pill.sv .stat-num { background: var(--gold-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.stat-pill.sv .stat-num { color: var(--gold-2); }
 .stat-pill.st .stat-num { color: var(--task); }
 .stat-pill.sp .stat-num { color: var(--project); }
 .stat-label {
@@ -262,55 +262,8 @@ body::after {
   line-height: 1.2;
 }
 
-/* ─── BOTTOM NAV TABS in header ─── */
-.nav-tabs {
-  display: flex;
-  border-top: 1px solid var(--border);
-  background: transparent;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.nav-tabs::-webkit-scrollbar { display: none; }
-.tab-btn {
-  flex: 1;
-  min-width: 64px;
-  background: none;
-  border: none;
-  padding: 8px 4px 10px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  font-family: var(--font-ui);
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  color: var(--muted);
-  transition: color 0.2s;
-  position: relative;
-  white-space: nowrap;
-}
-.tab-btn .ti { font-size: 16px; line-height: 1; }
-.tab-btn::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 20%; right: 20%;
-  height: 2px;
-  background: var(--gold-grad);
-  border-radius: 2px 2px 0 0;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.tab-btn.active { color: var(--gold); }
-.tab-btn.active::after { opacity: 1; }
-.tab-btn.active.tt { color: var(--task); }
-.tab-btn.active.tt::after { background: var(--task); }
-.tab-btn.active.tp { color: var(--project); }
-.tab-btn.active.tp::after { background: var(--project); }
-.tab-btn.active.td { color: var(--complete); }
-.tab-btn.active.td::after { background: var(--complete); }
+/* ─── header tabs hidden — bottom nav handles filtering ─── */
+.nav-tabs { display: none; }
 
 /* ═══════════════════════════════════════════
    SCROLL AREA
@@ -369,7 +322,7 @@ body::after {
 .card:active { transform: scale(0.977); box-shadow: var(--shadow-sm); }
 .card:hover  { box-shadow: var(--shadow-md); transform: translateY(-1px); }
 
-.card.vision  { border-color: var(--gold-border); background: linear-gradient(135deg, #fff 0%, #fdfbf4 100%); }
+.card.vision  { border-color: var(--gold-border); background: rgba(201,162,39,0.05); }
 .card.task    { border-color: var(--task-border); }
 .card.project { border-color: var(--project-border); }
 .card.done    { opacity: 0.55; background: var(--bg-card-2); }
