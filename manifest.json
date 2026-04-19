@@ -4,8 +4,8 @@
   "description": "Instruction tracker for Christ Cathedral of Deliverance Media Ministry",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0c24",
-  "theme_color": "#1a1035",
+  "background_color": "#faf8f4",
+  "theme_color": "#faf8f4",
   "orientation": "portrait",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
