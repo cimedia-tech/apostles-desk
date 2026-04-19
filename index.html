@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Apostle's Desk">
-<meta name="theme-color" content="#faf8f4">
+<meta name="theme-color" content="#0a0d1f">
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,57 +14,57 @@
 <title>Apostle's Desk</title>
 <style>
 /* ═══════════════════════════════════════════
-   DESIGN TOKENS — SACRED LIGHT
+   DESIGN TOKENS — SACRED DARK
 ═══════════════════════════════════════════ */
 :root {
   /* Backgrounds */
-  --bg:           #faf8f4;
-  --bg-warm:      #f5f1ea;
-  --bg-card:      #ffffff;
-  --bg-card-2:    #fdfbf8;
+  --bg:           #0a0d1f;
+  --bg-warm:      #0e1228;
+  --bg-card:      rgba(255,255,255,0.04);
+  --bg-card-2:    rgba(255,255,255,0.025);
 
   /* Surfaces & Borders */
-  --surface:      rgba(0,0,0,0.03);
-  --surface-2:    rgba(0,0,0,0.05);
-  --border:       rgba(0,0,0,0.08);
-  --border-strong:rgba(0,0,0,0.13);
+  --surface:      rgba(255,255,255,0.04);
+  --surface-2:    rgba(255,255,255,0.07);
+  --border:       rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.14);
 
   /* Text */
-  --text:         #1a1410;
-  --text-2:       #3d3530;
-  --muted:        #7a6e67;
-  --muted-2:      #b0a89f;
+  --text:         #eeeaf8;
+  --text-2:       rgba(238,234,248,0.85);
+  --muted:        rgba(238,234,248,0.45);
+  --muted-2:      rgba(238,234,248,0.25);
 
   /* Gold — primary brand */
-  --gold:         #b8860b;
+  --gold:         #c9a227;
   --gold-2:       #d4a017;
   --gold-3:       #e8c84a;
-  --gold-bg:      rgba(184,134,11,0.07);
-  --gold-border:  rgba(184,134,11,0.2);
-  --gold-grad:    linear-gradient(135deg, #b8860b 0%, #d4a017 50%, #b8860b 100%);
-  --gold-glow:    0 4px 24px rgba(184,134,11,0.25);
+  --gold-bg:      rgba(201,162,39,0.1);
+  --gold-border:  rgba(201,162,39,0.3);
+  --gold-grad:    linear-gradient(135deg, #c9a227 0%, #e8c84a 60%, #c9a227 100%);
+  --gold-glow:    0 0 24px rgba(201,162,39,0.35);
 
-  /* Semantic colors — refined */
-  --task:         #c0392b;
-  --task-2:       #e74c3c;
-  --task-bg:      rgba(192,57,43,0.07);
-  --task-border:  rgba(192,57,43,0.18);
+  /* Semantic colors */
+  --task:         #d94f4f;
+  --task-2:       #f07070;
+  --task-bg:      rgba(217,79,79,0.1);
+  --task-border:  rgba(217,79,79,0.25);
 
-  --project:      #1a5fa8;
-  --project-2:    #2980b9;
-  --project-bg:   rgba(26,95,168,0.07);
-  --project-border:rgba(26,95,168,0.18);
+  --project:      #4b8fd4;
+  --project-2:    #7ab3e8;
+  --project-bg:   rgba(75,143,212,0.1);
+  --project-border:rgba(75,143,212,0.25);
 
-  --complete:     #1e7e4a;
-  --complete-bg:  rgba(30,126,74,0.07);
-  --complete-border:rgba(30,126,74,0.15);
+  --complete:     #3d9e6d;
+  --complete-bg:  rgba(61,158,109,0.1);
+  --complete-border:rgba(61,158,109,0.2);
 
-  --vision-bg:    rgba(184,134,11,0.06);
+  --vision-bg:    rgba(201,162,39,0.07);
 
   /* Shape */
-  --radius:       16px;
-  --radius-sm:    10px;
-  --radius-xs:    7px;
+  --radius:       18px;
+  --radius-sm:    12px;
+  --radius-xs:    8px;
 
   /* Safe areas */
   --safe-top:     env(safe-area-inset-top, 0px);
@@ -76,10 +76,10 @@
   --font-mono:    'DM Mono', monospace;
 
   /* Shadows */
-  --shadow-sm:    0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md:    0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
-  --shadow-lg:    0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
-  --shadow-sheet: 0 -4px 40px rgba(0,0,0,0.12);
+  --shadow-sm:    0 2px 12px rgba(0,0,0,0.3);
+  --shadow-md:    0 4px 24px rgba(0,0,0,0.4);
+  --shadow-lg:    0 12px 48px rgba(0,0,0,0.5);
+  --shadow-sheet: 0 -4px 60px rgba(0,0,0,0.6);
 }
 
 /* ═══════════════════════════════════════════
@@ -114,15 +114,16 @@ html, body {
 body::before {
   content: '';
   position: fixed; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: 0; opacity: 0.8;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.6;
 }
 body::after {
   content: '';
   position: fixed; inset: 0;
   background:
-    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(184,134,11,0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 10% 80%, rgba(26,95,168,0.03) 0%, transparent 50%);
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,162,39,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(75,143,212,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 30% at 10% 60%, rgba(140,80,200,0.05) 0%, transparent 50%);
   pointer-events: none; z-index: 0;
 }
 
@@ -133,9 +134,9 @@ body::after {
   position: relative;
   z-index: 200;
   padding-top: calc(var(--safe-top) + 44px);
-  background: rgba(250,248,244,0.96);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  background: rgba(10,13,31,0.97);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
@@ -541,7 +542,7 @@ body::after {
   position: fixed;
   bottom: 0; left: 0; right: 0;
   z-index: 190;
-  background: rgba(250,248,244,0.97);
+  background: rgba(10,13,31,0.97);
   backdrop-filter: blur(20px) saturate(1.5);
   -webkit-backdrop-filter: blur(20px) saturate(1.5);
   border-top: 1px solid var(--border);
@@ -594,7 +595,7 @@ body::after {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(26,20,16,0.45);
+  background: rgba(5,7,18,0.75);
   z-index: 300;
   display: none;
   align-items: flex-end;
@@ -979,8 +980,9 @@ textarea { min-height: 84px; }
   bottom: calc(var(--safe-bottom) + 96px);
   left: 50%;
   transform: translateX(-50%) translateY(14px);
-  background: var(--text);
-  color: var(--bg);
+  background: rgba(20,24,44,0.96);
+  color: var(--text);
+  border: 1px solid var(--gold-border);
   padding: 10px 20px;
   border-radius: 50px;
   font-size: 13px;
